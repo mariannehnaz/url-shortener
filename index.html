@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:url" content="" /> <!-- Fill in your affiliate link here -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="" /> <!-- Fill in your product title here -->
+    <meta property="og:description" content="" /> <!-- Fill in your product description here -->
+    <meta property="og:image" content="" id="ogImageURL" /> <!-- Image URL will be set here -->
+    <meta property="og:image:alt" content="" /> <!-- Fill in alternative text for the image here -->
+    
+    <title></title> <!-- Fill in the title of your page here -->
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>URL Shortener with Image Upload</h1>
+    
+    <form id="urlForm">
+        <label for="affiliateLink">Affiliate Link:</label>
+        <input type="text" id="affiliateLink" required><br><br>
+        
+        <label for="productTitle">Product Title:</label>
+        <input type="text" id="productTitle" required><br><br>
+        
+        <label for="productDescription">Product Description:</label>
+        <textarea id="productDescription" required></textarea><br><br>
+        
+        <label for="imageUpload">Upload Image:</label>
+        <input type="file" id="imageUpload" accept="image/*" required><br><br>
+        
+        <button type="submit">Generate OG URL</button>
+    </form>
+    
+    <h2>Generated OG Tags</h2>
+    <pre id="generatedTags"></pre>
+    
+    <script>
+        document.getElementById('urlForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const affiliateLink = document.getElementById('affiliateLink').value;
+            const productTitle = document.getElementById('productTitle').value;
+            const productDescription = document.getElementById('productDescription').value;
+            const imageFile = document.getElementById('imageUpload').files[0];
+
+            const formData = new FormData();
+            formData.append('image', imageFile);
+            formData.append('affiliateLink', affiliateLink);
+            formData.append('productTitle', productTitle);
+            formData.append('productDescription', productDescription);
+            
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const ogImageURL = data.imageURL;
+                    document.getElementById('ogImageURL').setAttribute('content', ogImageURL);
+                    document.getElementById('generatedTags').textContent = `
+<meta property="og:url" content="${affiliateLink}" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="${productTitle}" />
+<meta property="og:description" content="${productDescription}" />
+<meta property="og:image" content="${ogImageURL}" />
+<meta property="og:image:alt" content="Image for ${productTitle}" />
+                    `;
+                } else {
+                    alert('Image upload failed. Please try again.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
